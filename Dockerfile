@@ -8,3 +8,4 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY index.html /usr/share/nginx/html
+EXPOSE 80
