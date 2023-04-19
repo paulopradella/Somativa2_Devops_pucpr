@@ -1,21 +1,16 @@
-language: node_js
-node_js:
-  - "stable"
+language: python
+python:
+  - "3.9"
 services:
   - docker
-before_script:
-  - npm install
+install:
+  - pip install -r requirements.txt
 script:
-  - npm test
-  - npm run build
-  - docker build -t meu-web-app .
-after_success:
-  - docker login -u $DOCKER_USER -p $DOCKER_PASS
-  - docker tag meu-web-app $DOCKER_USER/meu-web-app
-  - docker push $DOCKER_USER/meu-web-app
-notifications:
-  webhooks:
-    urls:
-      - https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage?chat_id=$TELEGRAM_CHAT_ID&text=Um%20novo%20pull%20request%20foi%20enviado%20para%20o%20repositório%20$TRAVIS_REPO_SLUG
-    on_success: change
-    on_failure: always
+  - python -m unittest
+  - bandit -r app.py
+  - docker build -t myapp .
+deploy:
+  provider: script
+  script: bash deploy.sh
+  on:
+    branch: main
