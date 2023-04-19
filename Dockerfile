@@ -1,7 +1,7 @@
 FROM ubuntu:latest
 RUN rm /var/lib/apt/lists/* -vf
 RUN apt-get clean
-RUN apt-get update
+RUN apt-get update --fix-missing
 RUN apt-get install -y curl
 RUN curl -sL https://deb.nodesource.com/setup_lts.x | bash -
 RUN apt-get update
