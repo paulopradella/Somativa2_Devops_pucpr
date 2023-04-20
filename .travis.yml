@@ -23,3 +23,6 @@ deploy:
   on:
     branch: main
   cleanup: false
+after_deploy:
+  - export MESSAGE="Deployment completed! Build: $TRAVIS_BUILD_NUMBER. Repo: $TRAVIS_REPO_SLUG. Commit: $TRAVIS_COMMIT."
+  - bash $TRAVIS_BUILD_DIR/telegram.sh
