@@ -18,3 +18,4 @@ deploy:
     - telegram-send "Deployment completed!"
   on:
     branch: main
+  skip_cleanup: true
