@@ -5,31 +5,31 @@ services:
   - docker
 install:
   - pip install -r requirements.txt
+script:
+  - python -m unittest
+  - bandit -r app.py
+after_script:
+  - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
+  - chmod +x $TELEGRAM_SH_PATH
+  - if [ $TRAVIS_TEST_RESULT -eq 0 ]; then bash $TELEGRAM_SH_PATH "Build succeeded!"; else bash $TELEGRAM_SH_PATH "Build failed!"; fi
 stages:
-  - name: build
+  - name: test-sast
     script:
-      - echo "Iniciando build..."
-      - # Comandos para realizar o build
-      - echo "Build concluído com sucesso!"
-    after_script:
+      - bandit -r app.py
       - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
       - chmod +x $TELEGRAM_SH_PATH
-      - if [ $TRAVIS_TEST_RESULT -eq 0 ]; then bash $TELEGRAM_SH_PATH "Build succeeded!"; else bash $TELEGRAM_SH_PATH "Build failed!"; fi
-  - name: test
-    script:
-      - echo "Iniciando teste..."
-      - # Comandos para realizar o teste
-      - echo "Teste concluído com sucesso!"
-    after_script:
-      - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
-      - chmod +x $TELEGRAM_SH_PATH
-      - if [ $TRAVIS_TEST_RESULT -eq 0 ]; then bash $TELEGRAM_SH_PATH "Test succeeded!"; else bash $TELEGRAM_SH_PATH "Test failed!"; fi
+      - if [ $TRAVIS_TEST_RESULT -eq 0 ]; then bash $TELEGRAM_SH_PATH "SAST scan succeeded!"; else bash $TELEGRAM_SH_PATH "SAST scan failed!"; fi
   - name: deploy
     if: type = push AND branch = main
     script:
-      - echo "Iniciando deploy..."
-      - # Comandos para realizar o deploy
-      - echo "Deploy concluído com sucesso!"
+      - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      - docker tag myapp $DOCKER_USERNAME/myapp
+      - docker push $DOCKER_USERNAME/myapp
+      - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
+      - chmod +x $TELEGRAM_SH_PATH
+      - echo "Iniciando o envio da mensagem para o Telegram..."
+      - bash $TELEGRAM_SH_PATH "Deployment completed!"
+      - echo "Mensagem enviada com sucesso para o Telegram!"
     after_script:
       - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
       - chmod +x $TELEGRAM_SH_PATH
@@ -46,4 +46,5 @@ stages:
     after_script:
       - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
       - chmod +x $TELEGRAM_SH_PATH
-      - if [ $TRAVIS_TEST_RESULT -eq 0 ]; then bash $TELEGRAM_SH_PATH "Pull request notification succeeded!"; else bash $TELEGRAM_SH_PATH "Pull request notification failed!"; fi
+      - if [ $TRAVIS_TEST_RESULT -eq 0 ]; then bash $TELEGRAM_SH_PATH "Pull request notification succeeded!"; else bash $TELEGRAM_SH_PATH "Pull request notification failed!"; 
+
