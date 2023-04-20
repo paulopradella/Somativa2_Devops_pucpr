@@ -11,17 +11,20 @@ script:
 stages:
   - name: test-sast
     script: bandit -r app.py
+  - name: notify-telegram
+    if: type = pull_request
+    script:
+      - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
+      - chmod +x $TELEGRAM_SH_PATH
+      - echo "Iniciando o envio da mensagem para o Telegram..."
+      - bash $TELEGRAM_SH_PATH "Pull request created/updated on branch $TRAVIS_BRANCH"
+      - echo "Mensagem enviada com sucesso para o Telegram!"
 deploy:
   provider: script
   script: 
     - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
     - docker tag myapp $DOCKER_USERNAME/myapp
     - docker push $DOCKER_USERNAME/myapp
-    - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
-    - chmod +x $TELEGRAM_SH_PATH
-    - echo "Iniciando o envio da mensagem para o Telegram..."
-    - bash $TELEGRAM_SH_PATH "Deployment completed!"
-    - echo "Mensagem enviada com sucesso para o Telegram!"
   on:
     branch: main
   cleanup: false
