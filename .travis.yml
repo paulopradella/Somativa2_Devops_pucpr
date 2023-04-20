@@ -23,3 +23,11 @@ stages:
       - bash $TELEGRAM_SH_PATH "Deployment completed!"
       - echo "Mensagem enviada com sucesso para o Telegram!"
     cleanup: false
+  - name: notify-pull-request
+    if: type = pull_request
+    script:
+      - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
+      - chmod +x $TELEGRAM_SH_PATH
+      - echo "Iniciando o envio da mensagem para o Telegram..."
+      - bash $TELEGRAM_SH_PATH "Pull request created or updated!"
+      - echo "Mensagem enviada com sucesso para o Telegram!"
