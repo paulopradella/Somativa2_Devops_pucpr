@@ -1,14 +1,35 @@
-#!/bin/bash
+#!/bin/sh
 
-# Define as variáveis de ambiente do Travis
-MESSAGE="Travis build $TRAVIS_BUILD_NUMBER of $TRAVIS_REPO_SLUG/$TRAVIS_BRANCH@$TRAVIS_COMMIT by $TRAVIS_COMMIT_AUTHOR_EMAIL: $TRAVIS_COMMIT_MESSAGE"
+# Get the token from Travis environment vars and build the bot URL:
+BOT_URL="https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage"
 
-echo "Enviando mensagem para o Telegram..."
+# Set formatting for the message. Can be either "Markdown" or "HTML"
+PARSE_MODE="Markdown"
 
-# Envia a mensagem para o Telegram usando o token do bot e o chat ID
-curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage \
-  -d chat_id=$TELEGRAM_CHAT_ID \
-  -d text="$MESSAGE"
+# Use built-in Travis variables to check if all previous steps passed:
+if [ $TRAVIS_TEST_RESULT -ne 0 ]; then
+    build_status="failed"
+else
+    build_status="succeeded"
+fi
 
-# Dá permissão de execução para o script
-chmod +x $TELEGRAM_SH_PATH
+# Define send message function. parse_mode can be changed to
+# HTML, depending on how you want to format your message:
+send_msg () {
+    curl -s -X POST ${BOT_URL} -d chat_id=$TELEGRAM_CHAT_ID \
+        -d text="$1" -d parse_mode=${PARSE_MODE}
+}
+
+# Send message to the bot with some pertinent details about the job
+# Note that for Markdown, you need to escape any backtick (inline-code)
+# characters, since they're reserved in bash
+send_msg "
+-------------------------------------
+Travis build *${build_status}!*
+\`Repository:  ${TRAVIS_REPO_SLUG}\`
+\`Branch:      ${TRAVIS_BRANCH}\`
+*Commit Msg:*
+${TRAVIS_COMMIT_MESSAGE}
+[Job Log here](${TRAVIS_JOB_WEB_URL})
+--------------------------------------
+"
