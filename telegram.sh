@@ -27,9 +27,9 @@ case $TRAVIS_BUILD_STAGE_NAME in
     MESSAGE+="*Commit Email*: ${TRAVIS_COMMIT_AUTHOR_EMAIL}\n\n"
     # Check if the build passed or failed and add the status to the message
     if [ $TRAVIS_TEST_RESULT -eq 0 ]; then
-      MESSAGE+="*Status*: Build succeeded"
+      MESSAGE+="*Status*: Succeeded"
     else
-      MESSAGE+="*Status*: Build failed"
+      MESSAGE+="*Status*: Failed"
     fi
     ;;
 esac
