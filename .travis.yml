@@ -20,9 +20,8 @@ deploy:
     - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
     - chmod +x $TELEGRAM_SH_PATH
     - bash $TELEGRAM_SH_PATH "Deployment completed!"
+    - export MESSAGE="Deployment completed! Build: $TRAVIS_BUILD_NUMBER. Repo: $TRAVIS_REPO_SLUG. Commit: $TRAVIS_COMMIT."
+    - bash $TRAVIS_BUILD_DIR/telegram.sh
   on:
     branch: main
   cleanup: false
-after_deploy:
-  - export MESSAGE="Deployment completed! Build: $TRAVIS_BUILD_NUMBER. Repo: $TRAVIS_REPO_SLUG. Commit: $TRAVIS_COMMIT."
-  - bash $TRAVIS_BUILD_DIR/telegram.sh
