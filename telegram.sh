@@ -7,3 +7,6 @@ MESSAGE="Travis build $TRAVIS_BUILD_NUMBER of $TRAVIS_REPO_SLUG/$TRAVIS_BRANCH@$
 curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage \
   -d chat_id=$TELEGRAM_CHAT_ID \
   -d text="$MESSAGE"
+
+# Dá permissão de execução para o script
+chmod +x $TELEGRAM_SH_PATH
