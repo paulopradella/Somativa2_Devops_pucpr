@@ -34,6 +34,11 @@ case $TRAVIS_BUILD_STAGE_NAME in
     ;;
 esac
 
+# Check if this is a pull request
+if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then
+  MESSAGE+="\n*Type*: Pull Request"
+fi
+
 # Add the URL to the build log to the message
 MESSAGE+="\n*Log*: ${TRAVIS_BUILD_WEB_URL}"
 
