@@ -1,35 +1,25 @@
 language: python
 python:
   - "3.9"
-
 services:
   - docker
-
 install:
   - pip install -r requirements.txt
-
 script:
   - python -m unittest
-
+  - bandit -r app.py
 stages:
   - name: test-sast
     script: bandit -r app.py
-
-deploy:
-  stage: deploy
-  script:
-    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-    - docker tag myapp $DOCKER_USERNAME/myapp
-    - docker push $DOCKER_USERNAME/myapp
-    - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
-    - chmod +x $TELEGRAM_SH_PATH
-    - echo "Iniciando o envio da mensagem para o Telegram..."
-    - bash $TELEGRAM_SH_PATH "Deployment completed!"
-    - echo "Mensagem enviada com sucesso para o Telegram!"
-  rules:
-    - if: '$CI_MERGE_REQUEST_ID'
-      when: manual
-      allow_failure: true
-    - if: '$CI_COMMIT_BRANCH == "main"'
-
-cleanup: false
+  - name: deploy
+    if: type = push AND branch = main
+    script:
+      - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      - docker tag myapp $DOCKER_USERNAME/myapp
+      - docker push $DOCKER_USERNAME/myapp
+      - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
+      - chmod +x $TELEGRAM_SH_PATH
+      - echo "Iniciando o envio da mensagem para o Telegram..."
+      - bash $TELEGRAM_SH_PATH "Deployment completed!"
+      - echo "Mensagem enviada com sucesso para o Telegram!"
+    cleanup: false
