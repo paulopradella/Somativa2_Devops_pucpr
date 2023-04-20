@@ -28,6 +28,9 @@ case $TRAVIS_BUILD_STAGE_NAME in
     # Check if the build passed or failed and add the status to the message
     if [ $TRAVIS_TEST_RESULT -eq 0 ]; then
       MESSAGE+="*Status*: Succeeded"
+      if [ "$TRAVIS_BUILD_STAGE_NAME" = "deploy" ] && [ "$TRAVIS_BRANCH" = "master" ]; then
+        MESSAGE+="\n*Type*: Deployment to production"
+      fi
     else
       MESSAGE+="*Status*: Failed"
     fi
@@ -43,4 +46,7 @@ fi
 MESSAGE+="\n*Log*: ${TRAVIS_BUILD_WEB_URL}"
 
 # Send the message to the bot
-curl -s -X POST ${BOT_URL} -d chat_id=${TELEGRAM_CHAT_ID} -d text="${MESSAGE}" -d parse_mode=${PARSE_MODE}
+if [ $TRAVIS_TEST_RESULT -eq 0 ] && [ "$TRAVIS_BUILD_STAGE_NAME" != "deploy" ]; then
+  # Send the message only if the build succeeded and the stage is not "deploy"
+  curl -s -X POST ${BOT_URL} -d chat_id=${TELEGRAM_CHAT_ID} -d text="${MESSAGE}" -d parse_mode=${PARSE_MODE}
+fi
