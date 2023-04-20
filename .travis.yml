@@ -5,16 +5,15 @@ services:
   - docker
 install:
   - pip install -r requirements.txt
-script:
-  - python -m unittest
-  - bandit -r app.py
-after_script:
-  - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
-  - chmod +x $TELEGRAM_SH_PATH
-  - if [ $TRAVIS_TEST_RESULT -eq 0 ]; then bash $TELEGRAM_SH_PATH "Build succeeded!"; else bash $TELEGRAM_SH_PATH "Build failed!"; fi
+
 stages:
   - name: test-sast
-    script: bandit -r app.py
+    script:
+      - python -m unittest
+      - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
+      - chmod +x $TELEGRAM_SH_PATH
+      - if [ $TRAVIS_TEST_RESULT -eq 0 ]; then bash $TELEGRAM_SH_PATH "SAST scan succeeded!"; else bash $TELEGRAM_SH_PATH "SAST scan failed!"; fi
+
   - name: deploy
     if: type = push AND branch = main
     script:
@@ -23,15 +22,12 @@ stages:
       - docker push $DOCKER_USERNAME/myapp
       - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
       - chmod +x $TELEGRAM_SH_PATH
-      - echo "Iniciando o envio da mensagem para o Telegram..."
       - bash $TELEGRAM_SH_PATH "Deployment completed!"
-      - echo "Mensagem enviada com sucesso para o Telegram!"
     cleanup: false
+
   - name: notify-pull-request
     if: type = pull_request
     script:
       - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
       - chmod +x $TELEGRAM_SH_PATH
-      - echo "Iniciando o envio da mensagem para o Telegram..."
       - bash $TELEGRAM_SH_PATH "Pull request created or updated!"
-      - echo "Mensagem enviada com sucesso para o Telegram!"
