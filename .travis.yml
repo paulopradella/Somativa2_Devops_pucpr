@@ -6,12 +6,15 @@ services:
 install:
   - pip install -r requirements.txt
 
+before_script:
+  - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
+  - chmod +x $TELEGRAM_SH_PATH
+
 stages:
   - name: test-sast
     script:
       - python -m unittest
-      - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
-      - chmod +x $TELEGRAM_SH_PATH
+      - bandit -r app.py
       - if [ $TRAVIS_TEST_RESULT -eq 0 ]; then bash $TELEGRAM_SH_PATH "SAST scan succeeded!"; else bash $TELEGRAM_SH_PATH "SAST scan failed!"; fi
 
   - name: deploy
@@ -20,14 +23,10 @@ stages:
       - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       - docker tag myapp $DOCKER_USERNAME/myapp
       - docker push $DOCKER_USERNAME/myapp
-      - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
-      - chmod +x $TELEGRAM_SH_PATH
       - bash $TELEGRAM_SH_PATH "Deployment completed!"
     cleanup: false
 
   - name: notify-pull-request
     if: type = pull_request
     script:
-      - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
-      - chmod +x $TELEGRAM_SH_PATH
       - bash $TELEGRAM_SH_PATH "Pull request created or updated!"
