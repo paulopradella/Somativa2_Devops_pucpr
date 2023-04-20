@@ -3,13 +3,24 @@ python:
   - "3.9"
 services:
   - docker
+stages:
+  - build
+  - test
+  - deploy
 install:
   - pip install -r requirements.txt
-script:
-  - python -m unittest
-  - bandit -r app.py
-  - docker build -t myapp .
+build:
+  stage: build
+  script:
+    - docker build --target test -t myapp-test .
+    - docker run myapp-test python -m unittest
+    - bandit -r app.py
+sast:
+  stage: test
+  script:
+    - bandit -r app.py
 deploy:
+  stage: deploy
   provider: script
   script: 
     - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
