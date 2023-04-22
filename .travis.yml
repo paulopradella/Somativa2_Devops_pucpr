@@ -46,5 +46,6 @@ stages:
     after_script:
       - export TELEGRAM_SH_PATH=$TRAVIS_BUILD_DIR/telegram.sh
       - chmod +x $TELEGRAM_SH_PATH
-      - if [ $TRAVIS_TEST_RESULT -eq 0 ]; then bash $TELEGRAM_SH_PATH "Pull request notification succeeded!"; else bash $TELEGRAM_SH_PATH "Pull request notification failed!"; 
+      - if [ $TRAVIS_TEST_RESULT -eq 0 ]; then bash $TELEGRAM_SH_PATH "Pull request notification succeeded!"; 
+      else bash $TELEGRAM_SH_PATH "Pull request notification failed!"; 
 
