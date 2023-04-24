@@ -1,0 +1,12 @@
+node{
+    stage('build'){
+        sh 'python3 -V'
+    }
+    stage('test'){
+        git branch: 'main', url: 'git@github.com:paulopradella/Somativa2_Devops_pucpr.git'
+        sh 'python3 app.py'
+    }
+    stage('deploy'){
+        echo "finished"
+    }
+}
